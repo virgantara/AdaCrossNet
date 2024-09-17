@@ -31,7 +31,7 @@ source download_data.sh
 
 ## Train DynamicCrossNet
 
-Refer `python train_crossnet_con.py` for the command to train CrossNet.
+Refer `python train.py` for the command to train CrossNet.
 
 ## Downstream Tasks
 
