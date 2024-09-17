@@ -6,7 +6,7 @@
 
 This paper proposes a self-supervised point cloud understanding method called CrossNet. CrossNet is simple and efficient, developing the intra-modal contrastive loss between the point clouds and the cross-modal contrastive loss between the point clouds and images. Finally, we combine the overall training objectives.
 
-<img src="docs/CrossNet.jpg" align="center" width="100%">
+<!-- <img src="docs/CrossNet.jpg" align="center" width="100%"> -->
 
 ## Citation
 
@@ -29,7 +29,7 @@ cd data
 source download_data.sh
 ```
 
-## Train CrossNet
+## Train DynamicCrossNet
 
 Refer `python train_crossnet_con.py` for the command to train CrossNet.
 
