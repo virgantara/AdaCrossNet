@@ -126,14 +126,14 @@ class ShapeNetRender(Dataset):
         # render_img_rgb.save('result/'+pcd_path.split('.')[0] + '_rgb.png')
         render_img_gray = Image.open(render_img_path).convert('L')
         # render_img_gray.save('result/'+pcd_path.split('.')[0] + '_gray.png')
-        print('render_img_rgb0=>',render_img_rgb,np.array(render_img_rgb).shape)
+        # print('render_img_rgb0=>',render_img_rgb,np.array(render_img_rgb).shape)
 
         render_img_rgb = trans_img_1(render_img_rgb)
         render_img_gray = trans_img_2(render_img_gray) #Tensor无save方法
             # render_img_rgb_list.append(render_img_rgb)
             # render_img_gray_list.append(render_img_gray)
 
-        print('render_img_rgb1=>',render_img_rgb,np.array(render_img_rgb).shape)
+        # print('render_img_rgb1=>',render_img_rgb,np.array(render_img_rgb).shape)
         pointcloud_1 = load_ply(self.data[item])
 
         # pointcloud_orig = pointcloud_1.copy()
