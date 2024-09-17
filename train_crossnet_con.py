@@ -118,6 +118,15 @@ def train(args, io):
     criterion = NTXentLoss(temperature = 0.2).to(device)
     
     best_acc = 0
+
+    # Initialize weights and their rates of change
+    lambda_intra = 1.0
+    lambda_cross = 1.0
+    alpha = 0.05  # Control sensitivity of adjustment
+    beta = 0.95  # Smoothing factor
+
+    prev_loss_intra = 0
+    prev_loss_cross = 0
     for epoch in range(args.start_epoch, args.epochs):
         ####################
         # Train
@@ -145,12 +154,24 @@ def train(args, io):
 
             point_t1_feats = point_feats[:batch_size, :]
             point_t2_feats = point_feats[batch_size: , :]
-            loss_intra = criterion(point_t1_feats, point_t2_feats)
+            
             image_feats = torch.cat([img_rgb_feats, img_gray_feats],dim = 0)
 
+            loss_intra = criterion(point_t1_feats, point_t2_feats)
             loss_cross = criterion(point_feats, image_feats)
 
-            total_loss = loss_intra + loss_cross
+            # Dynamic weight adjustment
+            delta_intra = loss_intra.item() - prev_loss_intra
+            delta_cross = loss_cross.item() - prev_loss_cross
+
+            lambda_intra = beta * lambda_intra + (1 - beta) * (1 / (1 + np.exp(-alpha * delta_intra)))
+            lambda_cross = beta * lambda_cross + (1 - beta) * (1 / (1 + np.exp(-alpha * delta_cross)))
+
+            # Update previous loss values
+            prev_loss_intra = loss_intra.item()
+            prev_loss_cross = loss_cross.item()
+
+            total_loss = lambda_intra * loss_intra + lambda_cross * loss_cross
             total_loss.backward()
             opt.step()
             lr_scheduler.step()

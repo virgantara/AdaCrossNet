@@ -25,3 +25,25 @@ class ResNet(nn.Module):
         x = self.resnet(x)
         x = self.inv_head(x)
         return x
+
+class MobileNetV2(nn.Module):
+    def __init__(self, model, feat_dim = 2048, type = None):
+        super(MobileNetV2, self).__init__()
+        if type == 'gray':
+            model.features[0][0] = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+
+        self.mobilenet = model
+        self.mobilenet.classifier = nn.Identity()
+        
+        self.inv_head = nn.Sequential(
+                            nn.Linear(feat_dim, 512, bias = False),
+                            nn.BatchNorm1d(512),
+                            nn.ReLU(inplace=True),
+                            nn.Linear(512, 256, bias = False)
+                            ) 
+        
+    def forward(self, x):
+        
+        x = self.mobilenet(x)
+        x = self.inv_head(x)
+        return x

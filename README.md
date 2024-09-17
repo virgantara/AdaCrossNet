@@ -1,6 +1,6 @@
-# [TMM 2023] Self-Supervised Intra-Modal and Cross-Modal Contrastive Learning for Point Cloud Understanding
+# DynamicCrossNet: Adaptive Weighting for Cross-Modal Contrastive Learning for Point Cloud Understanding
 
-#### [Paper Link](https://ieeexplore.ieee.org/abstract/document/10147273/) | [Project Page](https://github.com/liujia99/CrossNet/) 
+#### [Paper Link]() 
 
 ## Introduction
 
@@ -13,13 +13,7 @@ This paper proposes a self-supervised point cloud understanding method called Cr
 If you entrust our work with value, please consider giving a star ⭐ and citation.
 
 ```bibtex
-@article{wu2023self,
-  title={Self-Supervised Intra-Modal and Cross-Modal Contrastive Learning for Point Cloud Understanding},
-  author={Wu, Yue and Liu, Jiaming and Gong, Maoguo and Gong, Peiran and Fan, Xiaolong and Qin, AK and Miao, Qiguang and Ma, Wenping},
-  journal={IEEE Transactions on Multimedia},
-  year={2023},
-  publisher={IEEE}
-}
+
 ```
 
 ## Dependencies
@@ -56,4 +50,4 @@ Refer `downstream/segmentation/main_semseg.py` for fine-tuning experiment for se
 
 ## Acknowledgements
 
-Our code borrows heavily from [CrossPoint](https://github.com/MohamedAfham/CrossPoint) repository. We thank the authors of CrossPoint for releasing their code. 
+Our code borrows heavily from [CrossNet](https://github.com/liujia99/CrossNet) repository. We thank the authors of CrossNet for releasing their code. 
