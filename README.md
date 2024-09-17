@@ -50,4 +50,4 @@ Refer `downstream/segmentation/main_semseg.py` for fine-tuning experiment for se
 
 ## Acknowledgements
 
-Our code borrows heavily from [CrossNet](https://github.com/liujia99/CrossNet) repository. We thank the authors of CrossNet for releasing their code. 
+Our code is heavily borrowed from [CrossNet](https://github.com/liujia99/CrossNet) repository. We thank the authors of CrossNet for releasing their code. 
