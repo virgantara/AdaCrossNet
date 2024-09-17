@@ -5,7 +5,7 @@ import argparse
 import torch
 import math
 import numpy as np
-import wandb
+# import wandb
 from lightly.loss.ntx_ent_loss import NTXentLoss
 import time
 from sklearn.svm import SVC
@@ -75,7 +75,7 @@ def parse_args():
     return parser.parse_args()
 
 def train(args, io):
-    wandb.init(project="CrossNet1", name=args.exp_name)
+    # wandb.init(project="CrossNet1", name=args.exp_name)
 
     train_loader = DataLoader(ShapeNetRender(), num_workers=8,
                               batch_size=args.batch_size, shuffle=True, drop_last=True)
@@ -98,7 +98,7 @@ def train(args, io):
     img_gray_model = ResNet(resnet50(), feat_dim = 2048, type = 'gray')
     img_gray_model = img_gray_model.to(device)
         
-    wandb.watch(point_model)
+    # wandb.watch(point_model)
     
     if args.resume:
         point_model.load_state_dict(torch.load(args.model_path))
@@ -138,7 +138,7 @@ def train(args, io):
         point_model.train()
         img_rgb_model.train()
         img_gray_model.train()
-        wandb_log = {}
+        # wandb_log = {}
         print(f'Start training epoch: ({epoch}/{args.epochs})')
         for (data_t1, data_t2), (img_rgb, img_gray) in tqdm(train_loader):
             data_t1, data_t2, img_rgb, img_gray = data_t1.to(device), data_t2.to(device), img_rgb.to(device), img_gray.to(device)
@@ -184,9 +184,9 @@ def train(args, io):
                  (epoch, len(train_loader), train_losses.avg, train_intra_losses.avg, train_cross_losses.avg)
         io.cprint(outstr)
 
-        wandb_log['Train Loss'] = train_losses.avg
-        wandb_log['Train Intra Loss'] = train_intra_losses.avg
-        wandb_log['Train Cross Loss'] = train_cross_losses.avg
+        # wandb_log['Train Loss'] = train_losses.avg
+        # wandb_log['Train Intra Loss'] = train_intra_losses.avg
+        # wandb_log['Train Cross Loss'] = train_cross_losses.avg
         
         # Testing
         train_val_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
@@ -237,7 +237,7 @@ def train(args, io):
         model_tl.fit(feats_train, labels_train)
         # print('model_tl=>', model_tl)
         test_accuracy = model_tl.score(feats_test, labels_test)
-        wandb_log['Fit Linear Accuracy'] = test_accuracy
+        # wandb_log['Fit Linear Accuracy'] = test_accuracy
 
         io.cprint(f"Linear Accuracy : {test_accuracy}, Best Accuracy : {best_acc}")
         
@@ -255,7 +255,7 @@ def train(args, io):
                                                'img_gray_model_best.pth')
             torch.save(img_gray_model.state_dict(), save_img_model_file)
 
-        wandb.log(wandb_log)
+        # wandb.log(wandb_log)
     
     print('==> Saving Last Model...')
     save_file = os.path.join(f'checkpoints/{args.exp_name}/models/',
