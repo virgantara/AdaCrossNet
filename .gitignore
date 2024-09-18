@@ -1,0 +1,11 @@
+checkpoints/**
+data/**
+.idea/**
+log/**
+__pycache__/**
+*.h5
+*.csv
+*.xyz
+*.pyc
+*.png
+config.ini
