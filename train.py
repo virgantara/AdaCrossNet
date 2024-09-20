@@ -108,11 +108,11 @@ def train(args, io):
     # print(parameters)
 
     # if args.use_sgd:
-    #     print("Use SGD")
-    #     opt = optim.SGD(point_model.parameters(), lr=args.lr*100, momentum=args.momentum, weight_decay=1e-5)
+    print("Use SGD")
+    opt = optim.SGD(parameters, lr=args.lr*100, momentum=args.momentum, weight_decay=1e-4)
     # else:
-    print("Use Adam")
-    opt = optim.Adam(parameters, lr=args.lr, weight_decay=1e-4)
+    # print("Use Adam")
+    # opt = optim.Adam(parameters, lr=args.lr, weight_decay=1e-4)
 
     lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epochs, eta_min=0, last_epoch=-1)
     criterion = NTXentLoss(temperature = 0.2).to(device)
