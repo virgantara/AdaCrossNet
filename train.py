@@ -231,8 +231,8 @@ def train(args, io):
         
         model_tl = SVC(C = 0.01, kernel ='linear')
         # print('model_tl=>',model_tl)
-        test_accuracy = model_tl.score(feats_test, labels_test)
-        wandb_log['No Fit Linear Accuracy'] = test_accuracy
+        # test_accuracy = model_tl.score(feats_test, labels_test)
+        # wandb_log['No Fit Linear Accuracy'] = test_accuracy
 
         model_tl.fit(feats_train, labels_train)
         # print('model_tl=>', model_tl)
