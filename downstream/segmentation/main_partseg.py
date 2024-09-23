@@ -214,6 +214,7 @@ def train(args, io):
         outstr = 'Train %d, loss: %.6f, train acc: %.6f, train avg acc: %.6f, train iou: %.6f' % \
                  (epoch,  train_loss*1.0/count, train_acc, avg_per_class_acc, np.mean(train_ious))
 
+        wandb_log['Train Loss'] = train_loss*1.0/count
         wandb_log['Train Acc'] = train_acc
         wandb_log['Train Avg Class Acc'] = avg_per_class_acc
         wandb_log['Train IoU'] = np.mean(train_ious)
@@ -265,6 +266,7 @@ def train(args, io):
         outstr = 'Test %d, loss: %.6f, test acc: %.6f, test avg acc: %.6f, test iou: %.6f, best iou: %.6f' % \
                  (epoch, test_loss*1.0/count, test_acc, avg_per_class_acc, np.mean(test_ious), best_test_iou)
 
+        wandb_log['Test Loss'] = test_loss*1.0/count
         wandb_log['Test Acc'] = test_acc
         wandb_log['Test Avg Class Acc'] = avg_per_class_acc
         wandb_log['Test IoU'] = np.mean(test_ious)
