@@ -216,7 +216,7 @@ def train(args, io):
 
         wandb_log['Train Acc'] = train_acc
         wandb_log['Train Avg Class Acc'] = avg_per_class_acc
-        wandb_log['Train IoU'] = train_ious
+        wandb_log['Train IoU'] = np.mean(train_ious)
 
 
         io.cprint(outstr)
@@ -267,7 +267,7 @@ def train(args, io):
 
         wandb_log['Test Acc'] = test_acc
         wandb_log['Test Avg Class Acc'] = avg_per_class_acc
-        wandb_log['Test IoU'] = test_ious
+        wandb_log['Test IoU'] = np.mean(test_ious)
         io.cprint(outstr)
 
         wandb.log(wandb_log)
