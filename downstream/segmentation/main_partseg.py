@@ -8,7 +8,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
 from tqdm import tqdm
-
+import wandb
 from data import ShapeNetPart
 from model import DGCNN_partseg
 import numpy as np
@@ -109,6 +109,7 @@ def calculate_shape_IoU(pred_np, seg_np, label, class_choice):
 
 
 def train(args, io):
+    wandb.init(project="DCrossNetPartSeg1", name=args.exp_name)
     train_dataset = ShapeNetPart(partition='trainval', num_points=args.num_points, class_choice=args.class_choice)
     if (len(train_dataset) < 100):
         drop_last = False
@@ -152,6 +153,8 @@ def train(args, io):
 
     criterion = cal_loss
 
+    wandb.watch(model)
+
     best_test_iou = 0
     for epoch in range(args.epochs):
         print("Epoch %d/%d"%(epoch, args.epochs))
@@ -166,6 +169,7 @@ def train(args, io):
         train_true_seg = []
         train_pred_seg = []
         train_label_seg = []
+        wandb_log = {}
         for data, label, seg in tqdm(train_loader):
             seg = seg - seg_start_index
             label_one_hot = np.zeros((label.shape[0], 16))
@@ -209,6 +213,12 @@ def train(args, io):
         train_ious = calculate_shape_IoU(train_pred_seg, train_true_seg, train_label_seg, args.class_choice)
         outstr = 'Train %d, loss: %.6f, train acc: %.6f, train avg acc: %.6f, train iou: %.6f' % \
                  (epoch,  train_loss*1.0/count, train_acc, avg_per_class_acc, np.mean(train_ious))
+
+        wandb_log['Train Acc'] = train_acc
+        wandb_log['Train Avg Class Acc'] = avg_per_class_acc
+        wandb_log['Train IoU'] = train_ious
+
+
         io.cprint(outstr)
 
         ####################
@@ -255,6 +265,9 @@ def train(args, io):
         outstr = 'Test %d, loss: %.6f, test acc: %.6f, test avg acc: %.6f, test iou: %.6f, best iou: %.6f' % \
                  (epoch, test_loss*1.0/count, test_acc, avg_per_class_acc, np.mean(test_ious), best_test_iou)
 
+        wandb_log['Test Acc'] = test_acc
+        wandb_log['Test Avg Class Acc'] = avg_per_class_acc
+        wandb_log['Test IoU'] = test_ious
         io.cprint(outstr)
         if np.mean(test_ious) >= best_test_iou:
             best_test_iou = np.mean(test_ious)

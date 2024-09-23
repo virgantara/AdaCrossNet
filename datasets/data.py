@@ -51,7 +51,7 @@ trans_img_2 = transforms.Compose([transforms.Grayscale(1),
                                 transforms.Normalize(0.485, 0.229, inplace = True)])
 
 def load_modelnet_data(partition, cat = 40):
-    BASE_DIR = ''
+    BASE_DIR = '/home/virgantara/PythonProjects/DualGraphPoint'
     DATA_DIR = os.path.join(BASE_DIR, 'data')
     all_data, new_all_data = [],[]
     all_label, new_all_label= [],[]
