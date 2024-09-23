@@ -269,6 +269,8 @@ def train(args, io):
         wandb_log['Test Avg Class Acc'] = avg_per_class_acc
         wandb_log['Test IoU'] = test_ious
         io.cprint(outstr)
+
+        wandb.log(wandb_log)
         if np.mean(test_ious) >= best_test_iou:
             best_test_iou = np.mean(test_ious)
             torch.save(model.state_dict(), 'checkpoints/%s/models/model.t7' % args.exp_name)
