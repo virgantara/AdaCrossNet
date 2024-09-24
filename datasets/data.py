@@ -74,6 +74,54 @@ def load_modelnet_data(partition, cat = 40):
         all_label = np.array(new_all_label)
     return all_data, all_label
 
+
+
+def translate_pointcloud(pointcloud):
+    xyz1 = np.random.uniform(low=2./3., high=3./2., size=[3])
+    xyz2 = np.random.uniform(low=-0.2, high=0.2, size=[3])
+       
+    translated_pointcloud = np.add(np.multiply(pointcloud, xyz1), xyz2).astype('float32')
+    return translated_pointcloud
+
+def load_data_scanobjectnn(partition):
+    
+    DATA_DIR = "data/scanobjectnndataset_augmentedrot_scale75"
+    all_data = []
+    all_label = []
+    h5_file_path = ''
+    if partition == 'train':
+        h5_file_path = 'training_objectdataset_augmentedrot_scale75.h5'
+    elif partition == 'test':
+        h5_file_path = 'test_objectdataset_augmentedrot_scale75.h5'
+    
+    for h5_name in glob.glob(os.path.join(DATA_DIR, h5_file_path)):
+        f = h5py.File(h5_name)
+        data = f['data'][:].astype('float32')
+        label = f['label'][:].astype('int64')
+        f.close()
+        all_data.append(data)
+        all_label.append(label)
+    all_data = np.concatenate(all_data, axis=0)
+    all_label = np.concatenate(all_label, axis=0)
+    return all_data, all_label
+    
+class ScanObjectNNDataset(Dataset):
+    def __init__(self, num_points, partition='train'):
+        self.data, self.label = load_data_scanobjectnn(partition)
+        self.num_points = num_points
+        self.partition = partition        
+
+    def __getitem__(self, item):
+        pointcloud = self.data[item][:self.num_points]
+        label = self.label[item]
+        if self.partition == 'train':
+            pointcloud = translate_pointcloud(pointcloud)
+            np.random.shuffle(pointcloud)
+        return pointcloud, label
+
+    def __len__(self):
+        return self.data.shape[0]
+
 def load_ScanObjectNN(partition):
     BASE_DIR = 'data/ScanObjectNN'
     DATA_DIR = os.path.join(BASE_DIR, 'main_split')
