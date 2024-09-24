@@ -71,6 +71,8 @@ def parse_args():
     parser.add_argument('--resume', action="store_true", help='resume from checkpoint')
     parser.add_argument('--model_path', type=str, default='', metavar='N',
                         help='Pretrained model path')
+    parser.add_argument('--dataset', type=str, default='modelnet40', metavar='N',
+                        help='Dataset name')
     return parser.parse_args()
 
 def test(args, io):
@@ -94,8 +96,12 @@ def test(args, io):
     best_acc = 0
 
     # Testing
-    train_val_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
-    test_val_loader = DataLoader(ScanObjectNNSVM(partition='test', num_points=1024), batch_size=64, shuffle=False)
+    if args.dataset == 'modelnet40':
+        train_val_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+        test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=1024), batch_size=64, shuffle=False)
+    elif args.dataset == 'scanobjectnn':
+        train_val_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+        test_val_loader = DataLoader(ScanObjectNNSVM(partition='test', num_points=1024), batch_size=64, shuffle=False)
 
     feats_train = []
     labels_train = []
