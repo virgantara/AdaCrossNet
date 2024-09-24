@@ -18,7 +18,7 @@ from torchvision.models import resnet50, resnet18, resnet101
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from datasets.data import ShapeNetRender, ModelNet40SVM, ScanObjectNNSVM
+from datasets.data import ShapeNetRender, ModelNet40SVM, ScanObjectNNSVM, ScanObjectNNDataset
 from models.dgcnn import DGCNN_cls, DGCNN_partseg
 from models.pointnet import PointNet_cls, PointNet_partseg
 from models.resnet import ResNet
