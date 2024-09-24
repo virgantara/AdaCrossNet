@@ -115,62 +115,57 @@ def test(args, io):
     
     best_acc = 0
 
+    # Testing
+    train_val_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+    test_val_loader = DataLoader(ScanObjectNNSVM(partition='test', num_points=1024), batch_size=64, shuffle=False)
+
+    feats_train = []
+    labels_train = []
+    point_model.eval()
+
+    for (data, label) in tqdm(train_val_loader):
+        # print('data=>',data.shape,'label=>',label.shape) #[B,num_points,3]
+        labels = list(map(lambda x: x[0],label.numpy().tolist()))
+        # print('labels=>',labels) #[B,1]的label标签转换为一个大小为B的数组
+        data = data.permute(0, 2, 1).to(device)
+        with torch.no_grad():
+            feats = point_model(data)[-1]
+        feats = feats.detach().cpu().numpy()
+        # print('feats=>', feats.shape) #[B,2048(max1024+avg1024)]
+        for feat in feats:
+            feats_train.append(feat)
+        labels_train += labels
+
+    feats_train = np.array(feats_train)
+    labels_train = np.array(labels_train)
+    # print('feats_train=>',feats_train.shape,'labels_train=>',labels_train.shape) #(9840, 2048),(9840,)
+
+    feats_test = []
+    labels_test = []
+
+    for data, label in tqdm(test_val_loader):
+        labels = list(map(lambda x: x[0],label.numpy().tolist()))
+        data = data.permute(0, 2, 1).to(device)
+        with torch.no_grad():
+            feats = point_model(data)[-1]
+        feats = feats.detach().cpu().numpy()
+        for feat in feats:
+            feats_test.append(feat)
+        labels_test += labels
+
+    feats_test = np.array(feats_test)
+    labels_test = np.array(labels_test)
     
-    for epoch in range(args.start_epoch, args.epochs):
-        
-        print(f'Start training epoch: ({epoch}/{args.epochs})')
+    model_tl = SVC(C = 0.01, kernel ='linear')
 
-        # Testing
-        train_val_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
-        test_val_loader = DataLoader(ScanObjectNNSVM(partition='test', num_points=1024), batch_size=64, shuffle=False)
-
-        feats_train = []
-        labels_train = []
-        point_model.eval()
-
-        for (data, label) in tqdm(train_val_loader):
-            # print('data=>',data.shape,'label=>',label.shape) #[B,num_points,3]
-            labels = list(map(lambda x: x[0],label.numpy().tolist()))
-            # print('labels=>',labels) #[B,1]的label标签转换为一个大小为B的数组
-            data = data.permute(0, 2, 1).to(device)
-            with torch.no_grad():
-                feats = point_model(data)[-1]
-            feats = feats.detach().cpu().numpy()
-            # print('feats=>', feats.shape) #[B,2048(max1024+avg1024)]
-            for feat in feats:
-                feats_train.append(feat)
-            labels_train += labels
-
-        feats_train = np.array(feats_train)
-        labels_train = np.array(labels_train)
-        # print('feats_train=>',feats_train.shape,'labels_train=>',labels_train.shape) #(9840, 2048),(9840,)
-
-        feats_test = []
-        labels_test = []
-
-        for data, label in tqdm(test_val_loader):
-            labels = list(map(lambda x: x[0],label.numpy().tolist()))
-            data = data.permute(0, 2, 1).to(device)
-            with torch.no_grad():
-                feats = point_model(data)[-1]
-            feats = feats.detach().cpu().numpy()
-            for feat in feats:
-                feats_test.append(feat)
-            labels_test += labels
-
-        feats_test = np.array(feats_test)
-        labels_test = np.array(labels_test)
-        
-        model_tl = SVC(C = 0.01, kernel ='linear')
-  
-        model_tl.fit(feats_train, labels_train)
-        # print('model_tl=>', model_tl)
-        test_accuracy = model_tl.score(feats_test, labels_test)
-        
-        io.cprint(f"Linear Accuracy : {test_accuracy}, Best Accuracy : {best_acc}")
-        
-        if test_accuracy > best_acc:
-            best_acc = test_accuracy
+    model_tl.fit(feats_train, labels_train)
+    # print('model_tl=>', model_tl)
+    test_accuracy = model_tl.score(feats_test, labels_test)
+    
+    io.cprint(f"Linear Accuracy : {test_accuracy}, Best Accuracy : {best_acc}")
+    
+    if test_accuracy > best_acc:
+        best_acc = test_accuracy
             
     
 
