@@ -129,7 +129,7 @@ def load_ScanObjectNN(partition):
     f = h5py.File(h5_name)
     data = f['data'][:].astype('float32')
     label = f['label'][:].astype('int64')
-    
+    label = label.reshape(-1,1)
     return data, label
 
 def load_shapenet_data():
