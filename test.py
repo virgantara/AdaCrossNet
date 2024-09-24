@@ -75,9 +75,6 @@ def parse_args():
 
 def test(args, io):
     
-    train_loader = DataLoader(ShapeNetRender(), num_workers=8,
-                              batch_size=args.batch_size, shuffle=True, drop_last=True)
-
     #Try to load models
     if args.model == 'dgcnn_cls':
         point_model = DGCNN_cls(args).to(device)
@@ -89,29 +86,10 @@ def test(args, io):
         point_model = PointNet_partseg(args).to(device)
     else:
         raise Exception("Not implemented")
-        
-    img_rgb_model = ResNet(resnet50(), feat_dim = 2048)
-    img_rgb_model = img_rgb_model.to(device)
-
-    img_gray_model = ResNet(resnet50(), feat_dim = 2048, type = 'gray')
-    img_gray_model = img_gray_model.to(device)
-        
     
     point_model.load_state_dict(torch.load(args.model_path))
     print("Model Loaded !!")
         
-    parameters = list(point_model.parameters()) + list(img_rgb_model.parameters()) + list(img_gray_model.parameters())
-    # print(parameters)
-
-    # if args.use_sgd:
-    print("Use SGD")
-    opt = optim.SGD(point_model.parameters(), lr=args.lr*100, momentum=args.momentum, weight_decay=1e-4)
-    # else:
-    # print("Use Adam")
-    # opt = optim.Adam(parameters, lr=args.lr, weight_decay=1e-4)
-
-    lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epochs, eta_min=0, last_epoch=-1)
-    criterion = NTXentLoss(temperature = 0.2).to(device)
     
     best_acc = 0
 
