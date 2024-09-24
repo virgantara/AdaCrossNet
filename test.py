@@ -87,7 +87,7 @@ def test(args, io):
     else:
         raise Exception("Not implemented")
     
-    point_model.load_state_dict(torch.load(args.model_path))
+    point_model.load_state_dict(torch.load(args.model_path, weights_only=True))
     print("Model Loaded !!")
         
     
