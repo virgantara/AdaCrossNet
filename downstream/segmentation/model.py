@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 import torch.nn.functional as F
-
+from torch.autograd import Variable
 
 def knn(x, k):
     inner = -2*torch.matmul(x.transpose(2, 1), x)
@@ -309,12 +309,6 @@ class PointNet_partseg(nn.Module):
         self.bns2 = nn.BatchNorm1d(256)
         self.bns3 = nn.BatchNorm1d(128)
 
-        self.inv_head = nn.Sequential(
-            nn.Linear(args.emb_dims, args.emb_dims),
-            nn.BatchNorm1d(args.emb_dims),
-            nn.ReLU(inplace=True),
-            nn.Linear(args.emb_dims, 256)
-        )
 
     def forward(self, point_cloud, label):
         B, D, N = point_cloud.size()
@@ -338,12 +332,7 @@ class PointNet_partseg(nn.Module):
         out_max = torch.max(out5, 2, keepdim=True)[0]
         out_max = out_max.view(-1, 2048)
 
-        if self.pretrain:
-            print("PointNet Partseg Pretrain")
-            out_max = out_max.squeeze()
-            inv_feat = self.inv_head(out_max)
-            return inv_feat, out_max
-
+       
         out_max = torch.cat([out_max,label.squeeze(1)],1)
         expand = out_max.view(-1, 2048+16, 1).repeat(1, 1, N)
         concat = torch.cat([expand, out1, out2, out3, out4, out5], 1)
@@ -352,10 +341,11 @@ class PointNet_partseg(nn.Module):
         net = F.relu(self.bns2(self.convs2(net)))
         net = F.relu(self.bns3(self.convs3(net)))
         net = self.convs4(net)
-        net = net.transpose(2, 1).contiguous()
-        net = F.log_softmax(net.view(-1, self.part_num), dim=-1)
-        net = net.view(B, self.part_num, N) # [B, 50, N]
+       
         return net
+
+
+
 
 class STN3d(nn.Module):
     def __init__(self, channel):
@@ -388,8 +378,8 @@ class STN3d(nn.Module):
 
         iden = Variable(torch.from_numpy(np.array([1, 0, 0, 0, 1, 0, 0, 0, 1]).astype(np.float32))).view(1, 9).repeat(
             batchsize, 1)
-        # if x.is_cuda:
-        #     iden = iden.cuda()
+        if x.is_cuda:
+            iden = iden.cuda()
         x = x + iden
         x = x.view(-1, 3, 3)
         return x
@@ -429,6 +419,8 @@ class STNkd(nn.Module):
         iden = Variable(torch.from_numpy(np.eye(self.k).flatten().astype(np.float32))).view(1, self.k * self.k).repeat(
             batchsize, 1)
 
+        if x.is_cuda:
+            iden = iden.cuda()
         x = x + iden
         x = x.view(-1, self.k, self.k)
         return x

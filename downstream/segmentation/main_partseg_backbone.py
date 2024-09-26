@@ -119,6 +119,7 @@ def train(args, io):
     test_loader = DataLoader(ShapeNetPart(partition='test', num_points=args.num_points, class_choice=args.class_choice), 
                             num_workers=8, batch_size=args.test_batch_size, shuffle=False, drop_last=False)
 
+    device = torch.device("cuda")
     #Try to load models
     seg_num_all = train_loader.dataset.seg_num_all
     seg_start_index = train_loader.dataset.seg_start_index
