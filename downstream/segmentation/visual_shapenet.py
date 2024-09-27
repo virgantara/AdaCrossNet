@@ -71,7 +71,8 @@ def visual_part(data, seg, index, path):
     # plt.close()
 
 if __name__ == '__main__':
-    pc = np.loadtxt('/home/virgantara/PythonProjects/DynamicCrossNet/outputs/visualization_txt/airplane/airplane_102_pred_0.8071.txt')
+    base_path = '/home/virgantara/PythonProjects/DynamicCrossNet/outputs'
+    pc = np.loadtxt(base_path+'/exp_partseg_adacrossnet/visualization/airplane/airplane_5_pred_0.9322.txt')
     data = pc[:,:3].astype(float)
     seg = pc[:,-1].astype(int)
     index = 0
