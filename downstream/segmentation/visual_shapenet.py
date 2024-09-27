@@ -66,12 +66,12 @@ def visual_part(data, seg, index, path):
     ax.set_ylim3d(-1, 1)
     ax.set_xlim3d(-1, 1)
     ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=colormap, s=6, marker='.')
-    # plt.show()
-    plt.savefig(f'result/part/mpct/{path}_mpct_{index}.png', dpi=500, bbox_inches='tight', transparent=True)
-    plt.close()
+    plt.show()
+    # plt.savefig(f'./result/part/mpct/{path}_mpct_{index}.png', dpi=500, bbox_inches='tight', transparent=True)
+    # plt.close()
 
 if __name__ == '__main__':
-    pc = np.loadtxt('airplane.txt')
+    pc = np.loadtxt('/home/virgantara/PythonProjects/DynamicCrossNet/outputs/visualization_txt/airplane/airplane_102_pred_0.8071.txt')
     data = pc[:,:3].astype(float)
     seg = pc[:,-1].astype(int)
     index = 0
