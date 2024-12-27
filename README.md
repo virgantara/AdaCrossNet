@@ -1,10 +1,10 @@
-# DynamicCrossNet: Adaptive Weighting for Cross-Modal Contrastive Learning for Point Cloud Understanding
+# AdaCrossNet: Adaptive Dynamic Loss Weighting for Cross-Modal Contrastive Point Cloud Learning
 
-#### [Paper Link]() 
+#### [Paper Link](https://inass.org/wp-content/uploads/2024/10/2025022911-2.pdf) 
 
 ## Introduction
 
-This paper proposes a self-supervised point cloud understanding method called CrossNet. CrossNet is simple and efficient, developing the intra-modal contrastive loss between the point clouds and the cross-modal contrastive loss between the point clouds and images. Finally, we combine the overall training objectives.
+Manual annotation of large-scale point cloud datasets is laborious due to their irregular structure. Whilecross-modal contrastive learning methods such as CrossPoint and CrossNet have progressed in utilizing multimodaldata for self-supervised learning, they still suffer from instability during training caused by the static weighting ofintra-modal (IM) and cross-modal (CM) losses. These static weights fail to account for the varying convergence ratesof different modalities. We propose AdaCrossNet, a novel self-supervised learning framework for point cloudunderstanding that utilizes a dynamic weight adjustment mechanism for IM and CM contrastive learning. AdaCrossNetlearns representations by simultaneously enhancing the alignment between 3-D point clouds and their associated 2D-rendered images within a common latent space. Our dynamic weight adjustment mechanism adaptively balances thecontributions of IM and CM losses during training, guided by the convergence behavior of each modality.
 
 <!-- <img src="docs/CrossNet.jpg" align="center" width="100%"> -->
 
@@ -13,7 +13,19 @@ This paper proposes a self-supervised point cloud understanding method called Cr
 If you entrust our work with value, please consider giving a star ⭐ and citation.
 
 ```bibtex
-
+@article{Putra2025,
+   author = {Oddy Virgantara Putra and Kohichi Ogata and Eko Mulyanto Yuniarno and Mauridhi Hery Purnomo},
+   doi = {10.22266/ijies2025.0229.11},
+   issn = {21853118},
+   issue = {1},
+   journal = {International Journal of Intelligent Engineering and Systems},
+   month = {2},
+   pages = {134-146},
+   title = {AdaCrossNet: Adaptive Dynamic Loss Weighting for Cross-Modal Contrastive Point Cloud Learning},
+   volume = {18},
+   url = {https://inass.org/wp-content/uploads/2024/10/2025022911-2.pdf},
+   year = {2025},
+}
 ```
 
 ## Dependencies
