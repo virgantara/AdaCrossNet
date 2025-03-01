@@ -2,6 +2,14 @@
 
 #### [Paper Link](https://inass.org/wp-content/uploads/2024/10/2025022911-2.pdf) 
 
+## Badges
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/adacrossnet-adaptive-dynamic-loss-weighting/3d-point-cloud-linear-classification-on-1)](https://paperswithcode.com/sota/3d-point-cloud-linear-classification-on-1?p=adacrossnet-adaptive-dynamic-loss-weighting)
+
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/adacrossnet-adaptive-dynamic-loss-weighting/3d-point-cloud-linear-classification-on)](https://paperswithcode.com/sota/3d-point-cloud-linear-classification-on?p=adacrossnet-adaptive-dynamic-loss-weighting)
+
+
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/adacrossnet-adaptive-dynamic-loss-weighting/3d-part-segmentation-on-shapenet-part)](https://paperswithcode.com/sota/3d-part-segmentation-on-shapenet-part?p=adacrossnet-adaptive-dynamic-loss-weighting)
+
 ## Introduction
 
 Manual annotation of large-scale point cloud datasets is laborious due to their irregular structure. Whilecross-modal contrastive learning methods such as CrossPoint and CrossNet have progressed in utilizing multimodaldata for self-supervised learning, they still suffer from instability during training caused by the static weighting ofintra-modal (IM) and cross-modal (CM) losses. These static weights fail to account for the varying convergence ratesof different modalities. We propose AdaCrossNet, a novel self-supervised learning framework for point cloudunderstanding that utilizes a dynamic weight adjustment mechanism for IM and CM contrastive learning. AdaCrossNetlearns representations by simultaneously enhancing the alignment between 3-D point clouds and their associated 2D-rendered images within a common latent space. Our dynamic weight adjustment mechanism adaptively balances thecontributions of IM and CM losses during training, guided by the convergence behavior of each modality.

@@ -4,6 +4,91 @@ import h5py
 import numpy as np
 import open3d as o3d
 import random
+import matplotlib.pyplot as plt
+
+def visualize_dataset_statistics_with_details(all_data, all_label, class_names):
+    """
+    Visualizes the class distribution as a histogram and prints detailed statistics for the dataset.
+    
+    Parameters:
+        all_data (numpy.ndarray): The point cloud data.
+        all_label (numpy.ndarray): The corresponding labels.
+        class_names (list): List of class names.
+    """
+    # Compute class distribution
+    class_counts = [np.sum(all_label == i) for i in range(len(class_names))]
+    
+    # Plot the histogram
+    plt.figure(figsize=(12, 6))
+    plt.bar(range(len(class_names)), class_counts, tick_label=class_names)
+    plt.xlabel("Class Names")
+    plt.ylabel("Number of Samples")
+    plt.title("Data Distribution Across Classes in ModelNet40")
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.show()
+    
+    # Compute and print statistics for the dataset
+    stats = compute_dataset_statistics(all_data)
+    print("Dataset Statistics (Per Dimension):")
+    for axis, stat in stats.items():
+        print(f"Dimension {axis}:")
+        print(f"  Mean: {stat['mean']:.4f}")
+        print(f"  Variance: {stat['variance']:.4f}")
+        print(f"  Std Dev: {stat['std']:.4f}")
+        print(f"  Min: {stat['min']:.4f}")
+        print(f"  Max: {stat['max']:.4f}")
+        print()
+
+def vis_modelnet_with_stats_and_details():
+    # Load the dataset
+    partition = 'train'  # or 'test'
+    class_names = ['airplane', 'bathtub', 'bed', 'bench', 'bookshelf', 'bottle', 'bowl', 'car', 'chair',
+                   'cone', 'cup', 'curtain', 'desk', 'door', 'dresser', 'flower_pot', 'glass_box', 'guitar',
+                   'keyboard', 'lamp', 'laptop', 'mantel', 'monitor', 'night_stand', 'person', 'piano',
+                   'plant', 'radio', 'range_hood', 'sink', 'sofa', 'stairs', 'stool', 'table', 'tent',
+                   'toilet', 'tv_stand', 'vase', 'wardrobe', 'xbox']
+    all_data, all_label = load_modelnet_data(partition)
+    
+    # Visualize class distribution and dataset statistics
+    visualize_dataset_statistics_with_details(all_data, all_label, class_names)
+    
+    # Visualize a point cloud from a random class
+    selected_class = 'chair'  # Choose a class to visualize (e.g., 'airplane', 'table', etc.)
+    selected_label = class_names.index(selected_class)
+    selected_indices = np.where(all_label == selected_label)[0]
+
+    if len(selected_indices) > 0:
+        idx = np.random.choice(selected_indices)
+        point_cloud = all_data[idx]
+        label = all_label[idx][0]
+
+        visualize_point_cloud_open3d(point_cloud, label, class_names)
+    else:
+        print(f"No samples found for the '{selected_class}' class.")
+
+def compute_dataset_statistics(all_data):
+    """
+    Computes statistics (mean, variance, std, min, max) for each dimension (X, Y, Z) of the dataset.
+    
+    Parameters:
+        all_data (numpy.ndarray): The point cloud data with shape (N, num_points, 3).
+    
+    Returns:
+        stats (dict): A dictionary containing statistics for each dimension.
+    """
+    stats = {}
+    # Reshape data to isolate XYZ dimensions
+    data_reshaped = all_data.reshape(-1, 3)  # Shape (N * num_points, 3)
+    for i, axis in enumerate(['X', 'Y', 'Z']):
+        stats[axis] = {
+            'mean': np.mean(data_reshaped[:, i]),
+            'variance': np.var(data_reshaped[:, i]),
+            'std': np.std(data_reshaped[:, i]),
+            'min': np.min(data_reshaped[:, i]),
+            'max': np.max(data_reshaped[:, i])
+        }
+    return stats
 
 def load_modelnet_data(partition, cat=40):
     BASE_DIR = '/home/virgantara/PythonProjects/DualGraphPoint'
@@ -117,7 +202,48 @@ def vis_shapenet():
 
     # Visualize the selected point cloud with segmentation
     visualize_point_cloud_with_segmentation(point_cloud, segmentation, num_segments)
+
+def visualize_data_statistics(all_label, class_names):
+    """Visualizes the distribution of data across classes as a histogram."""
+    class_counts = [np.sum(all_label == i) for i in range(len(class_names))]
+    
+    # Plot the histogram
+    plt.figure(figsize=(12, 6))
+    plt.bar(range(len(class_names)), class_counts, tick_label=class_names)
+    plt.xlabel("Class Names")
+    plt.ylabel("Number of Samples")
+    plt.title("Data Distribution Across Classes in ModelNet40")
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.show()
+
+def vis_modelnet_with_stats():
+    # Load the dataset
+    partition = 'train'  # or 'test'
+    class_names = ['airplane', 'bathtub', 'bed', 'bench', 'bookshelf', 'bottle', 'bowl', 'car', 'chair',
+                   'cone', 'cup', 'curtain', 'desk', 'door', 'dresser', 'flower_pot', 'glass_box', 'guitar',
+                   'keyboard', 'lamp', 'laptop', 'mantel', 'monitor', 'night_stand', 'person', 'piano',
+                   'plant', 'radio', 'range_hood', 'sink', 'sofa', 'stairs', 'stool', 'table', 'tent',
+                   'toilet', 'tv_stand', 'vase', 'wardrobe', 'xbox']
+    all_data, all_label = load_modelnet_data(partition)
+    
+    # Visualize class distribution
+    visualize_data_statistics(all_label, class_names)
+
+    # Continue to visualize a random class as a point cloud example
+    selected_class = 'chair'  # Choose a class to visualize (e.g., 'airplane', 'table', etc.)
+    selected_label = class_names.index(selected_class)
+    selected_indices = np.where(all_label == selected_label)[0]
+
+    if len(selected_indices) > 0:
+        idx = np.random.choice(selected_indices)
+        point_cloud = all_data[idx]
+        label = all_label[idx][0]
+
+        visualize_point_cloud_open3d(point_cloud, label, class_names)
+    else:
+        print(f"No samples found for the '{selected_class}' class.")
 # Main program
 if __name__ == "__main__":
-    
-    vis_shapenet()
+    vis_modelnet_with_stats()
+    #vis_shapenet()
