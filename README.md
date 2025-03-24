@@ -59,6 +59,11 @@ Refer `python train.py` for the command to train CrossNet.
 
 Run `downstream/classification/main.py`  to perform linear SVM object classification in both ModelNet40 and ScanObjectNN datasets.
 
+ Example:
+```cmd
+python downstream/classification/main.py --pretrain_path=checkpoints/exp_name/models/best_model.pth --epochs=300 --batch_size=80 --test_batch_size=48
+```
+
 
 ### 2. 3D Object Part Segmentation
 
