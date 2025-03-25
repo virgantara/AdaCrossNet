@@ -11,10 +11,56 @@
 import os
 import sys
 import glob
+import torch
 import h5py
 import numpy as np
 import random
 from torch.utils.data import Dataset
+
+def read_off(file):
+    with open(file, 'r') as f:
+        if 'OFF' != f.readline().strip():
+            raise 'Not a valid OFF header'
+        n_verts, n_faces, _ = tuple(map(int, f.readline().strip().split(' ')))
+        verts = [list(map(float, f.readline().strip().split(' '))) for _ in range(n_verts)]
+        verts = np.array(verts)
+        return verts
+
+
+class ModelNet10Dataset(Dataset):
+    def __init__(self, root_dir, split='train', num_points=1024, transform=None):
+        self.root_dir = root_dir
+        self.split = split
+        self.num_points = num_points
+        self.transform = transform
+        self.classes = sorted(os.listdir(root_dir))
+        self.data_paths = []
+
+        for label, class_name in enumerate(self.classes):
+            class_folder = os.path.join(root_dir, class_name, split)
+            for file in os.listdir(class_folder):
+                if file.endswith('.off'):
+                    self.data_paths.append((os.path.join(class_folder, file), label))
+
+    def __len__(self):
+        return len(self.data_paths)
+
+    def __getitem__(self, idx):
+        file_path, label = self.data_paths[idx]
+        point_cloud = read_off(file_path)
+
+        # Random sampling if more points than num_points
+        if point_cloud.shape[0] >= self.num_points:
+            choice = np.random.choice(point_cloud.shape[0], self.num_points, replace=False)
+        else:
+            choice = np.random.choice(point_cloud.shape[0], self.num_points, replace=True)
+
+        point_cloud = point_cloud[choice, :]
+
+        if self.transform:
+            point_cloud = self.transform(point_cloud)
+
+        return torch.tensor(point_cloud, dtype=torch.float32), label
 
 def pc_normalize(pc):
     centroid = np.mean(pc, axis=0)
