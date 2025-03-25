@@ -196,13 +196,15 @@ def test(args, io):
     #Try to load models
     model = DGCNN(args).to(device)
     # model = nn.DataParallel(model)
-    model.load_state_dict(torch.load(args.model_path))
+    checkpoint = torch.load(args.pretrain_path)
+    model.load_state_dict(checkpoint, strict=False)
+    # model.load_state_dict(torch.load(args.model_path))
     model = model.eval()
     test_acc = 0.0
     count = 0.0
     test_true = []
     test_pred = []
-    for data, label in test_loader:
+    for data, label in tqdm(test_loader):
         data, label = data.to(device), label.to(device).squeeze()
         data = data.permute(0, 2, 1)
         batch_size = data.size()[0]

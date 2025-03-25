@@ -11,6 +11,7 @@ from tqdm import tqdm
 import wandb
 from data import ShapeNetPart
 from model import DGCNN_partseg,PointNet_partseg,PointNet2_partseg
+
 import numpy as np
 from torch.utils.data import DataLoader
 from util import cal_loss, IOStream
@@ -295,6 +296,9 @@ def test(args, io):
         raise Exception("Not implemented")
 
     model = torch.load(args.model_path, weights_only=False)
+
+    model = nn.DataParallel(model)
+    model.load_state_dict(torch.load(args.model_path))
     model = model.eval()
     test_acc = 0.0
     count = 0.0
