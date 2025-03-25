@@ -1,3 +1,6 @@
+outputs/**
+wandb/**
+*.tar.gz
 checkpoints/**
 data/**
 .idea/**
