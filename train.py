@@ -75,7 +75,7 @@ def parse_args():
     return parser.parse_args()
 
 def train(args, io):
-    wandb.init(project="CrossNet1", name=args.exp_name)
+    wandb.init(project="AdaCrossNet", name=args.exp_name)
 
     train_loader = DataLoader(ShapeNetRender(), num_workers=8,
                               batch_size=args.batch_size, shuffle=True, drop_last=True)
@@ -107,12 +107,13 @@ def train(args, io):
     parameters = list(point_model.parameters()) + list(img_rgb_model.parameters()) + list(img_gray_model.parameters())
     # print(parameters)
 
-    # if args.use_sgd:
-    print("Use SGD")
-    opt = optim.SGD(point_model.parameters(), lr=args.lr*100, momentum=args.momentum, weight_decay=1e-4)
-    # else:
-    # print("Use Adam")
-    # opt = optim.Adam(parameters, lr=args.lr, weight_decay=1e-4)
+    if args.use_sgd:
+        print("Use SGD")
+        opt = optim.SGD(point_model.parameters(), lr=args.lr*100, momentum=args.momentum, weight_decay=1e-5)
+    else:
+        print("Use Adam")
+        opt = optim.Adam(parameters, lr=args.lr, weight_decay=1e-5)
+
 
     lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epochs, eta_min=0, last_epoch=-1)
     criterion = NTXentLoss(temperature = 0.2).to(device)
