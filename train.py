@@ -128,6 +128,10 @@ def train(args, io):
 
     prev_loss_intra = 0
     prev_loss_cross = 0
+
+    # Testing
+    train_val_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+    test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=1024), batch_size=64, shuffle=False)
     for epoch in range(args.start_epoch, args.epochs):
         ####################
         # Train
@@ -189,9 +193,7 @@ def train(args, io):
         wandb_log['Train Intra Loss'] = train_intra_losses.avg
         wandb_log['Train Cross Loss'] = train_cross_losses.avg
         
-        # Testing
-        train_val_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
-        test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=1024), batch_size=64, shuffle=False)
+        
 
         feats_train = []
         labels_train = []
