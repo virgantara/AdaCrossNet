@@ -271,6 +271,84 @@ def train(args, io):
                          'img_gray_model_last.pth')
     torch.save(img_gray_model.state_dict(), save_img_model_file)
 
+def test(args, io):
+    wandb.init(project="AdaCrossNet", name=args.exp_name + "_eval")
+
+    # Load test dataset
+    test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=1024), batch_size=args.test_batch_size, shuffle=False)
+
+    # Load model
+    if args.model == 'dgcnn_cls':
+        point_model = DGCNN_cls(args).to(device)
+    elif args.model == 'dgcnn_seg':
+        point_model = DGCNN_partseg(args).to(device)
+    elif args.model == 'pointnet_cls':
+        point_model = PointNet_cls(args).to(device)
+    elif args.model == 'pointnet_seg':
+        point_model = PointNet_partseg(args).to(device)
+    else:
+        raise Exception("Model not implemented")
+
+    point_model.load_state_dict(torch.load(args.model_path))
+    point_model.eval()
+
+    criterion = NTXentLoss(temperature=0.2).to(device)
+    wandb_log = {}
+
+    # Linear evaluation
+    feats_test = []
+    labels_test = []
+
+    with torch.no_grad():
+        for data, label in tqdm(test_val_loader, desc='Extracting Features'):
+            labels = list(map(lambda x: x[0], label.numpy().tolist()))
+            data = data.permute(0, 2, 1).to(device)
+            feats = point_model(data)[-1]
+            feats_test.extend(feats.cpu().numpy())
+            labels_test += labels
+
+    feats_test = np.array(feats_test)
+    labels_test = np.array(labels_test)
+
+    # (Optional) create mock training set for SVM training
+    # You may want to load a real one, depending on test protocol
+    train_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+    feats_train, labels_train = [], []
+
+    with torch.no_grad():
+        for data, label in tqdm(train_loader, desc='Preparing SVM Train Set'):
+            labels = list(map(lambda x: x[0], label.numpy().tolist()))
+            data = data.permute(0, 2, 1).to(device)
+            feats = point_model(data)[-1]
+            feats_train.extend(feats.cpu().numpy())
+            labels_train += labels
+
+    feats_train = np.array(feats_train)
+    labels_train = np.array(labels_train)
+
+    model_tl = SVC(C=0.01, kernel='linear')
+    model_tl.fit(feats_train, labels_train)
+    test_accuracy = model_tl.score(feats_test, labels_test)
+
+    io.cprint(f"Test Linear Accuracy: {test_accuracy}")
+    wandb_log["Test Linear Accuracy"] = test_accuracy
+
+    # Optional: compute test contrastive loss (e.g., between first and second halves)
+    test_loss_meter = AverageMeter()
+    with torch.no_grad():
+        for data, _ in tqdm(test_val_loader, desc="Calculating Contrastive Loss"):
+            data = data.permute(0, 2, 1).to(device)
+            feats, _ = point_model(data)
+            if feats.size(0) >= 2:
+                split = feats.size(0) // 2
+                loss = criterion(feats[:split], feats[split:2*split])
+                test_loss_meter.update(loss.item(), split)
+
+    wandb_log["Test Contrastive Loss"] = test_loss_meter.avg
+    io.cprint(f"Test Contrastive Loss: {test_loss_meter.avg:.6f}")
+
+    wandb.log(wandb_log)
+
 if __name__ == "__main__":
     args = parse_args()
     _init_()
