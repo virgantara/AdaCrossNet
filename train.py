@@ -282,6 +282,9 @@ if __name__ == "__main__":
 
     torch.manual_seed(args.seed)
 
-    train(args, io)
-    
+    if not args.eval:
+        train(args, io)
+    else:
+        test(args, io)
+
 
