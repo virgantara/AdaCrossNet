@@ -42,6 +42,9 @@ def parse_args():
     parser.add_argument('--model', type=str, default='dgcnn_cls', metavar='N',
                         choices=['dgcnn_cls', 'dgcnn_seg', 'pointnet_cls', 'pointnet_seg'],
                         help='Model to use, [pointnet, dgcnn]')
+    parser.add_argument('--dataset_name', type=str, default='modelnet40svm', metavar='N',
+                        choices=['modelnet40svm', 'scanobjectnnsvm'],
+                        help='Dataset name to test, [modelnet40svm, scanobjectnnsvm]')
     parser.add_argument('--batch_size', type=int, default=32, metavar='batch_size',
                         help='Size of batch)')
     parser.add_argument('--test_batch_size', type=int, default=16, metavar='batch_size',
@@ -130,8 +133,8 @@ def train(args, io):
     prev_loss_cross = 0
 
     # Testing
-    train_val_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
-    test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=1024), batch_size=64, shuffle=False)
+    train_val_loader = DataLoader(ModelNet40SVM(partition='train', num_points=args.num_points), batch_size=args.batch_size, shuffle=True)
+    test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=args.num_points), batch_size=args.test_batch_size, shuffle=False)
     for epoch in range(args.start_epoch, args.epochs):
         ####################
         # Train
@@ -275,7 +278,7 @@ def test(args, io):
     wandb.init(project="AdaCrossNet", name=args.exp_name + "_eval")
 
     # Load test dataset
-    test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=1024), batch_size=args.test_batch_size, shuffle=False)
+    test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=args.num_points), batch_size=args.test_batch_size, shuffle=False)
 
     # Load model
     if args.model == 'dgcnn_cls':
@@ -312,7 +315,10 @@ def test(args, io):
 
     # (Optional) create mock training set for SVM training
     # You may want to load a real one, depending on test protocol
-    train_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+    if args.dataset_name == 'modelnet40svm':
+        train_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+    elif args.dataset_name == 'scanobjectnnsvm':
+        train_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
     feats_train, labels_train = [], []
 
     with torch.no_grad():
