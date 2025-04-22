@@ -79,11 +79,8 @@ def parse_args():
     return parser.parse_args()
 
 def test(args, io):
-   
-    # Load test dataset
-    test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=args.num_points), batch_size=args.test_batch_size, shuffle=False)
-
-    # Load model
+    
+    #Try to load models
     if args.model == 'dgcnn_cls':
         point_model = DGCNN_cls(args).to(device)
     elif args.model == 'dgcnn_seg':
@@ -93,65 +90,69 @@ def test(args, io):
     elif args.model == 'pointnet_seg':
         point_model = PointNet_partseg(args).to(device)
     else:
-        raise Exception("Model not implemented")
+        raise Exception("Not implemented")
+    
+    point_model.load_state_dict(torch.load(args.model_path, weights_only=True))
+    print("Model Loaded !!")
+        
+    
+    best_acc = 0
 
-    point_model.load_state_dict(torch.load(args.model_path))
+    # Testing
+    if args.dataset == 'modelnet40':
+        train_val_loader = DataLoader(ModelNet40SVM(partition='train', num_points=args.num_points), batch_size=args.batch_size, shuffle=True)
+        test_val_loader = DataLoader(ModelNet40SVM(partition='test', num_points=args.num_points), batch_size=args.test_batch_size, shuffle=False)
+    elif args.dataset == 'scanobjectnn':
+        train_val_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=args.num_points), batch_size=args.batch_size, shuffle=True)
+        test_val_loader = DataLoader(ScanObjectNNSVM(partition='test', num_points=args.num_points), batch_size=args.test_batch_size, shuffle=False)
+
+    feats_train = []
+    labels_train = []
     point_model.eval()
 
-    criterion = NTXentLoss(temperature=0.2).to(device)
-
-    # Linear evaluation
-    feats_test = []
-    labels_test = []
-
-    with torch.no_grad():
-        for data, label in tqdm(test_val_loader, desc='Extracting Features'):
-            labels = list(map(lambda x: x[0], label.numpy().tolist()))
-            data = data.permute(0, 2, 1).to(device)
+    for (data, label) in tqdm(train_val_loader):
+        # print('data=>',data.shape,'label=>',label.shape) #[B,num_points,3]
+        labels = list(map(lambda x: x[0],label.numpy().tolist()))
+        # print('labels=>',labels) #[B,1]的label标签转换为一个大小为B的数组
+        data = data.permute(0, 2, 1).to(device)
+        with torch.no_grad():
             feats = point_model(data)[-1]
-            feats_test.extend(feats.cpu().numpy())
-            labels_test += labels
-
-    feats_test = np.array(feats_test)
-    labels_test = np.array(labels_test)
-
-    # (Optional) create mock training set for SVM training
-    # You may want to load a real one, depending on test protocol
-    if args.dataset_name == 'modelnet40svm':
-        train_loader = DataLoader(ModelNet40SVM(partition='train', num_points=args.num_points), batch_size=args.batch_size, shuffle=True)
-    elif args.dataset_name == 'scanobjectnnsvm':
-        train_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=args.num_points), batch_size=args.batch_size, shuffle=True)
-    feats_train, labels_train = [], []
-
-    with torch.no_grad():
-        for data, label in tqdm(train_loader, desc='Preparing SVM Train Set'):
-            labels = list(map(lambda x: x[0], label.numpy().tolist()))
-            data = data.permute(0, 2, 1).to(device)
-            feats = point_model(data)[-1]
-            feats_train.extend(feats.cpu().numpy())
-            labels_train += labels
+        feats = feats.detach().cpu().numpy()
+        # print('feats=>', feats.shape) #[B,2048(max1024+avg1024)]
+        for feat in feats:
+            feats_train.append(feat)
+        labels_train += labels
 
     feats_train = np.array(feats_train)
     labels_train = np.array(labels_train)
+    # print('feats_train=>',feats_train.shape,'labels_train=>',labels_train.shape) #(9840, 2048),(9840,)
 
-    model_tl = SVC(C=0.01, kernel='linear')
+    feats_test = []
+    labels_test = []
+
+    for data, label in tqdm(test_val_loader):
+        labels = list(map(lambda x: x[0],label.numpy().tolist()))
+        data = data.permute(0, 2, 1).to(device)
+        with torch.no_grad():
+            feats = point_model(data)[-1]
+        feats = feats.detach().cpu().numpy()
+        for feat in feats:
+            feats_test.append(feat)
+        labels_test += labels
+
+    feats_test = np.array(feats_test)
+    labels_test = np.array(labels_test)
+    
+    model_tl = SVC(C = 0.01, kernel ='linear')
+
     model_tl.fit(feats_train, labels_train)
+    # print('model_tl=>', model_tl)
     test_accuracy = model_tl.score(feats_test, labels_test)
-
-    io.cprint(f"Test Linear Accuracy: {test_accuracy}")
-    # Optional: compute test contrastive loss (e.g., between first and second halves)
-    test_loss_meter = AverageMeter()
-    with torch.no_grad():
-        for data, _ in tqdm(test_val_loader, desc="Calculating Contrastive Loss"):
-            data = data.permute(0, 2, 1).to(device)
-            feats, _ = point_model(data)
-            if feats.size(0) >= 2:
-                split = feats.size(0) // 2
-                loss = criterion(feats[:split], feats[split:2*split])
-                test_loss_meter.update(loss.item(), split)
-
-    io.cprint(f"Test Contrastive Loss: {test_loss_meter.avg:.6f}")
-
+    
+    io.cprint(f"Linear Accuracy : {test_accuracy}, Best Accuracy : {best_acc}")
+    
+    if test_accuracy > best_acc:
+        best_acc = test_accuracy
             
     
 
