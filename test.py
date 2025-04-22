@@ -137,7 +137,7 @@ def test(args, io):
     # print('model_tl=>', model_tl)
     test_accuracy = model_tl.score(feats_test, labels_test)
     
-    io.cprint(f"Linear Accuracy : {test_accuracy}, Best Accuracy : {best_acc}")
+    io.cprint(f"Linear Accuracy : {test_accuracy}")
     
     if test_accuracy > best_acc:
         best_acc = test_accuracy

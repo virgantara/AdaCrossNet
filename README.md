@@ -54,7 +54,7 @@ source download_data.sh
 Refer `python train.py` for the command to train CrossNet.
 
 ## Our Best Pre-Trained Model using AdaCrossNet
-You can download our best Linear SVM pre-trained model with 91.8 in [here](https://drive.google.com/file/d/1g8eQamzgzzMmLofs398C8OSgTQPX1PSo/view?usp=sharing)
+You can download our best Linear SVM pre-trained model with 91.8% accuracy in [here](https://drive.google.com/file/d/1g8eQamzgzzMmLofs398C8OSgTQPX1PSo/view?usp=sharing)
 
 ## Downstream Tasks
 
