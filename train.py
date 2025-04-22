@@ -68,6 +68,8 @@ def parse_args():
                         help='num of points to use')
     parser.add_argument('--dropout', type=float, default=0.5,
                         help='dropout rate')
+    parser.add_argument('--weight_decay', type=float, default=1e-5,
+                        help='Weight Decay')
     parser.add_argument('--emb_dims', type=int, default=1024, metavar='N',
                         help='Dimension of embeddings')
     parser.add_argument('--k', type=int, default=20, metavar='N',
@@ -112,10 +114,10 @@ def train(args, io):
 
     if args.use_sgd:
         print("Use SGD")
-        opt = optim.SGD(point_model.parameters(), lr=args.lr*100, momentum=args.momentum, weight_decay=1e-5)
+        opt = optim.SGD(point_model.parameters(), lr=args.lr*100, momentum=args.momentum, weight_decay=args.weight_decay)
     else:
         print("Use Adam")
-        opt = optim.Adam(parameters, lr=args.lr, weight_decay=1e-4)
+        opt = optim.Adam(parameters, lr=args.lr, weight_decay=args.weight_decay)
 
 
     lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epochs, eta_min=0, last_epoch=-1)
