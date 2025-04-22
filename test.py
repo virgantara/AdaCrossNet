@@ -36,6 +36,8 @@ def _init_():
 def parse_args():
     # Training settings
     parser = argparse.ArgumentParser(description='Point Cloud Recognition')
+    parser.add_argument('--exp_name', type=str, default='exp', metavar='N',
+                        help='Name of the experiment')
     parser.add_argument('--model', type=str, default='dgcnn_cls', metavar='N',
                         choices=['dgcnn_cls', 'dgcnn_seg', 'pointnet_cls', 'pointnet_seg'],
                         help='Model to use, [pointnet, dgcnn]')
