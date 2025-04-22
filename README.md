@@ -56,6 +56,21 @@ Refer `python train.py` for the command to train CrossNet.
 ## Our Best Pre-Trained Model using AdaCrossNet
 You can download our best Linear SVM pre-trained model with 91.8% accuracy in [here](https://drive.google.com/file/d/1g8eQamzgzzMmLofs398C8OSgTQPX1PSo/view?usp=sharing)
 
+## Test our pre-trained model
+1. Copy our pre-trained model from previous path to a directory. You can copy inside this repo directory.
+2. Test our pre-trained model, run this script:
+```cmd
+python test.py --model_path=path/to/pretrain/models/best_model.pth
+```
+
+## Benchmark on CrossPoint and CrossNet
+| Model                       | Accuracy (%) |
+|-----------------------------|--------------|
+| DGCNN + CrossPoint [1]      | 91.2         |
+| DGCNN + CrossNet [2]        | 91.5         |
+| DGCNN + AdaCrossNet (ours)  | **91.8**     |
+
+
 ## Downstream Tasks
 
 ### 1. 3D Object Classification 
@@ -79,3 +94,8 @@ Refer `downstream/segmentation/main_semseg.py` for fine-tuning experiment for se
 ## Acknowledgements
 
 Our code is heavily borrowed from [CrossNet](https://github.com/liujia99/CrossNet) repository. We thank the authors of CrossNet for releasing their code. 
+
+## References
+[1] M. Afham et al., “CrossPoint: Self-supervised cross-modal contrastive learning for 3D point cloud understanding,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2022, pp. 9902–9912.
+
+[2] Y. Wu et al., “Self-Supervised Intra-Modal and Cross-Modal Contrastive Learning for Point Cloud Understanding”, IEEE Trans Multimedia, Vol. 26, pp. 1626-1638, 2024, doi: 10.1109/TMM.2023.3284591
