@@ -316,9 +316,9 @@ def test(args, io):
     # (Optional) create mock training set for SVM training
     # You may want to load a real one, depending on test protocol
     if args.dataset_name == 'modelnet40svm':
-        train_loader = DataLoader(ModelNet40SVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+        train_loader = DataLoader(ModelNet40SVM(partition='train', num_points=args.num_points), batch_size=args.batch_size, shuffle=True)
     elif args.dataset_name == 'scanobjectnnsvm':
-        train_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=1024), batch_size=64, shuffle=True)
+        train_loader = DataLoader(ScanObjectNNSVM(partition='train', num_points=args.num_points), batch_size=args.batch_size, shuffle=True)
     feats_train, labels_train = [], []
 
     with torch.no_grad():
