@@ -96,6 +96,6 @@ Refer `downstream/segmentation/main_semseg.py` for fine-tuning experiment for se
 Our code is heavily borrowed from [CrossNet](https://github.com/liujia99/CrossNet) repository. We thank the authors of CrossNet for releasing their code. 
 
 ## References
-[1] M. Afham et al., “CrossPoint: Self-supervised cross-modal contrastive learning for 3D point cloud understanding,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2022, pp. 9902–9912.
+[1] [M. Afham et al., “CrossPoint: Self-supervised cross-modal contrastive learning for 3D point cloud understanding,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit., 2022, pp. 9902–9912.](https://ieeexplore.ieee.org/document/9878878)
 
-[2] Y. Wu et al., “Self-Supervised Intra-Modal and Cross-Modal Contrastive Learning for Point Cloud Understanding”, IEEE Trans Multimedia, Vol. 26, pp. 1626-1638, 2024, doi: 10.1109/TMM.2023.3284591
+[2] [Y. Wu et al., “Self-Supervised Intra-Modal and Cross-Modal Contrastive Learning for Point Cloud Understanding”, IEEE Trans Multimedia, Vol. 26, pp. 1626-1638, 2024, doi: 10.1109/TMM.2023.3284591](https://ieeexplore.ieee.org/document/10147273)
