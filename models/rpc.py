@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from util_lib.GDANet_util import GDM, local_operator, SGCAM
+# from util_lib.GDANet_util import GDM, local_operator, SGCAM
+from models.util_lib.GDANet_util import GDM, local_operator, SGCAM
+
 
 class RPC(nn.Module):
     def __init__(self, args, output_channels=40):
