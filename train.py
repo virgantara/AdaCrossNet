@@ -21,6 +21,7 @@ from tqdm import tqdm
 
 from datasets.data import ShapeNetRender, ModelNet40SVM, ScanObjectNNSVM
 from models.dgcnn import DGCNN_cls, DGCNN_partseg
+from models.rpc import RPC
 from models.pointnet import PointNet_cls, PointNet_partseg
 from models.resnet import ResNet
 from util import IOStream, AverageMeter
@@ -39,8 +40,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Point Cloud Recognition')
     parser.add_argument('--exp_name', type=str, default='exp', metavar='N',
                         help='Name of the experiment')
-    parser.add_argument('--model', type=str, default='dgcnn_cls', metavar='N',
-                        choices=['dgcnn_cls', 'dgcnn_seg', 'pointnet_cls', 'pointnet_seg'],
+    parser.add_argument('--model', type=str, default='rpc', metavar='N',
+                        choices=['rpc','dgcnn_cls', 'dgcnn_seg', 'pointnet_cls', 'pointnet_seg'],
                         help='Model to use, [pointnet, dgcnn]')
     parser.add_argument('--dataset_name', type=str, default='modelnet40svm', metavar='N',
                         choices=['modelnet40svm', 'scanobjectnnsvm'],
@@ -86,7 +87,9 @@ def train(args, io):
                               batch_size=args.batch_size, shuffle=True, drop_last=True)
 
     #Try to load models
-    if args.model == 'dgcnn_cls':
+    if args.model == 'rpc':
+        point_model = RPC(args).to(device)
+    elif args.model == 'dgcnn_cls':
         point_model = DGCNN_cls(args).to(device)
     elif args.model == 'dgcnn_seg':
         point_model = DGCNN_partseg(args).to(device)
